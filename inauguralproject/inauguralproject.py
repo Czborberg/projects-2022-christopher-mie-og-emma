@@ -77,3 +77,41 @@ def indifferent(q,pi):
     """
     dV = expected_utility_pi(q,pi)-expected_utility_pi(0,0)
     return dV
+
+def utility_mod(x,gamma,pi):
+    """ 
+    Function that is a modification of previous function for utility where the coverage, q is a fraction of x
+    
+    Args:
+    x:     input array (loss)
+    gamma: scalar (coverage fraction of x)
+    pi:    scalar (premium)
+    
+    Returns:
+    u_mod: output array (agent's utility)
+    
+    """
+    u_mod = utility(y-(1-gamma)*x-pi)
+    return u_mod
+
+def expected_utility_MC(utility_mod,gamma,pi):
+    """ 
+    Function that is a modification of previous function for expected utility where the loss x is drawn from a beta
+    distribution.
+    
+    Args:
+    x:     input array (loss)
+    gamma: scalar (coverage fraction of x)
+    pi:    scalar (premium)
+    
+    Returns:
+    u_mod: output array (agent's utility)
+    
+    """
+    X = np.random.beta(a=2,b=7,size=10**6)
+    V_mod = np.mean(utility_mod(X,gamma,pi))
+    return  V_mod
+
+def mc_indifferent(pi):
+    X = beta()
+    return np.mean(utility(y-(1-0.95)*X-pi)-utility(y-1*X))
