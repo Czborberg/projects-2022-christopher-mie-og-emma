@@ -1,4 +1,4 @@
-# \Christopher, Mie og Emma\
+# Christopher, Mie og Emma
 
 **Group members:**
 - Christopher Von Zernichow Borberg
