@@ -83,7 +83,7 @@ def indifferent(q,pi):
 def beta():
     return np.random.beta(a=2,b=7,size=10**6)
 
-def utility_mod(x, gamma, pi):
+def utility_mod(x, gamma, pi, y=1.0):
     """ 
     Function that is a modification of previous function for utility where the coverage, q is a fraction of x
     
@@ -91,6 +91,7 @@ def utility_mod(x, gamma, pi):
     x:     input array (loss)
     gamma: scalar (coverage fraction of x)
     pi:    scalar (premium)
+    y:     scarlar (assets which is 1.0 by default)
     
     Returns:
     u_mod: output array (agent's utility)
