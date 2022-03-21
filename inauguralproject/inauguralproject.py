@@ -1,4 +1,4 @@
-def premium(q,p=0.2):
+def premium(q, p=0.2):
     """ 
     Function that captures the insurance company's premium policy 
     
@@ -13,8 +13,7 @@ def premium(q,p=0.2):
     pi = p*q
     return pi
 
-
-def utility(z,theta=-2):
+def utility(z, theta=-2):
     """ 
     CRRA utility function
     
@@ -29,7 +28,7 @@ def utility(z,theta=-2):
     u = z**(1+theta)/(1+theta)
     return u
 
-def expected_utility(q,x,p=0.2,y=1.0):
+def expected_utility(q, x, p=0.2, y=1.0):
     """ 
     Function that calculates an insured agent's expected utility (for q=0 is holds for agents that are not insured)
     
@@ -46,4 +45,35 @@ def expected_utility(q,x,p=0.2,y=1.0):
     V = p*utility(y-x+q-premium(q)) + (1-p)*utility(y-premium(q))
     return V
 
+def expected_utility_pi(q,pi,x=0.6,p=0.2,y=1.0):
+    """ 
+    Function that calculates an insured agent's expected utility where the premium is a variable
+    
+    Args: 
+    q:  input array (coverage amount)
+    pi: input array (premium)
+    x:  scalar (monetary loss which is 0.6 by default)
+    p:  scalar (probability of monetary loss which is 0.2 by default)
+    y:  scalar (agent's assets which is 1.0 by default)
+    
+    Returns:
+    V_pi: output array (expected utility)
+    
+    """
+    V_pi = p*utility(y-x+q-pi) + (1-p)*utility(y-pi)
+    return V_pi
 
+def indifferent(q,pi):
+    """ 
+    Function that calculates difference in expected utility from not having an insurance
+    
+    Args: 
+    q:  input array (coverage amount)
+    pi: input array (premium)
+    
+    Returns:
+    dV: output array (difference in expected utility from not having an insurance)
+    
+    """
+    dV = expected_utility_pi(q,pi)-expected_utility_pi(0,0)
+    return dV
