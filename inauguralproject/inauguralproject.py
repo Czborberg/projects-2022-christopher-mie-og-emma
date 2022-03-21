@@ -94,7 +94,7 @@ def utility_mod(x,gamma,pi):
     u_mod = utility(y-(1-gamma)*x-pi)
     return u_mod
 
-def expected_utility_MC(utility_mod,gamma,pi):
+def expected_utility_MC(gamma,pi):
     """ 
     Function that is a modification of previous function for expected utility where the loss x is drawn from a beta
     distribution.
