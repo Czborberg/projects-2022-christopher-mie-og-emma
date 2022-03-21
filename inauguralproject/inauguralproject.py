@@ -1,3 +1,5 @@
+import numpy as np
+
 def premium(q, p=0.2):
     """ 
     Function that captures the insurance company's premium policy 
