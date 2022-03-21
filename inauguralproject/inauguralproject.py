@@ -95,10 +95,24 @@ def expected_utility_MC(gamma, pi, y=1.0):
     V_mod: output array (agent's expected utility after modification)
     
     """
-    X = np.random.beta(a=2,b=7,size=10**6)
-    V_mod = np.mean(utility(y-(1 - gamma)*X - pi))
+    X = np.random.beta(a=2, b=7, size=10**6)
+    V_mod = np.mean(utility(y - (1-gamma)*X - pi))
     return  V_mod
 
-def mc_indifferent(pi):
-    X = np.random.beta(a=2,b=7,size=10**6)
-    return np.mean(utility(y-(1-0.95)*X-pi)-utility(y-1*X))
+def indifferent_MC(pi, gamma, y=1.0):
+    """ 
+    Function that calculates difference in expected utility from having the full loss 
+    covered and only a fraction, gamma, covered.
+    
+    Args: 
+    pi: input array (premium)
+    gamma: scalar (coverage fraction of x)
+    y:  scalar (agent's assets which is 1.0 by default)
+    
+    Returns:
+    dV_MC: output array (difference in expected utility from not having full coverage)
+    
+    """
+    X = np.random.beta(a=2, b=7, size=10**6)
+    dV_MC = np.mean(utility(y - (1-gamma)*X - pi) - utility(y - X))
+    return dV_MC
