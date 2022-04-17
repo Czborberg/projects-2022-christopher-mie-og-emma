@@ -1,3 +1,5 @@
+import pandas as pd
+
 def index_function(df):
     """ Function to change index column to years and deleting original index column
 
