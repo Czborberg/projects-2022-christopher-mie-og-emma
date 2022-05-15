@@ -84,7 +84,7 @@ class RamseyModel():
         K = path.K
         K_lag = path.K_lag = np.insert(K[:-1],0, par.K_initial)
 
-        path.Y, path.r, path.w = production(par, ss.A, K_lag)
+        path.Y, path.r, path.w = production(par, path.A, K_lag)
         r_plus = np.append(path.r[1:], ss.r)
 
         errors = np.nan*np.ones((2, par.transition_path))
