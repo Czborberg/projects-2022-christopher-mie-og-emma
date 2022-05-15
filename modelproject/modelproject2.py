@@ -24,6 +24,7 @@ class RamseyModel():
         par = self.par
 
         par.alpha = 0.3 # capital share
+        par.n = 0.00 # capital share
         par.beta = np.nan # discount factor
         par.A=np.nan
         par.delta = 0.05 # depreciation rate
@@ -60,8 +61,8 @@ class RamseyModel():
         # implied discount factor
         par.beta = 1/(1+(ss.rk-par.delta))
 
-        # consumption (goods market clear Y = C + I, I = delta*K)
-        ss.C = ss.Y - par.delta*ss.K 
+        # consumption (goods market clear Y = C + I, I = delta*K + delta*n)
+        ss.C = ss.Y - par.delta*ss.K - par.n*ss.K
 
         if do_print:
 
@@ -92,7 +93,7 @@ class RamseyModel():
 
         errors = np.nan*np.ones((2, par.transition_path))
         errors[0,:] = C**(-par.theta) - par.beta*(1+r_plus)*C_plus**(-par.theta)
-        errors[1,:] = K - ((1-par.delta)*K_lag + path.Y - C)
+        errors[1,:] = K - ((1-par.delta-par.n)*K_lag + path.Y - C)
         
         return errors.ravel()
         
