@@ -24,12 +24,13 @@ class RamseyModel():
         par = self.par
 
         par.alpha = 0.3 # capital share
+        par.n = 0.00 # population growth
         par.beta = np.nan # discount factor
         par.A=np.nan
         par.delta = 0.05 # depreciation rate
         par.theta = 2 # coefficient of constant relative risk aversion (CRRA)
         par.K_initial = 1.0
-        par.transition_path = 500 
+        par.transition_path = 1000 
     
     def allocate(self):
         """ allocate arrays for transition path """
@@ -37,7 +38,7 @@ class RamseyModel():
         par = self.par
         path = self.path
 
-        allvariables = ['A','K','C','w','r','Y','K_lag']
+        allvariables = ['A','K','C','w','r','rk','Y','K_lag','n']
 
         for variablename in allvariables:
             setattr(path, variablename, np.nan*np.ones(par.transition_path))
@@ -51,22 +52,25 @@ class RamseyModel():
         ss.K = KY_ss
         Y,_,_ = production(par,1.0,ss.K)
         ss.A = 1/Y
-        
+        ss.n = par.n
+
         # factor prices
-        ss.Y, ss.r, ss.w = production(par,ss.A, ss.K)
+        ss.Y, ss.rk, ss.w = production(par,ss.A, ss.K)
         assert np.isclose(ss.Y, 1.0)
         
+        ss.r = ss.rk-par.delta-par.n
         # implied discount factor
-        par.beta = 1/(1+ss.r)
+        par.beta = 1/(1+(ss.r))
 
-        # consumption (goods market clear Y = C + I, I = delta*K)
-        ss.C = ss.Y - par.delta*ss.K 
+        # consumption (goods market clear Y = C + I, I = delta*K + delta*n)
+        ss.C = ss.Y - par.delta*ss.K - par.n*ss.K
 
         if do_print:
 
             print(f'Y_ss = {ss.Y:.4f}')
             print(f'K_ss/Y_ss = {ss.K/ss.Y:.4f}')
-            print(f'r_ss = {ss.r:.4f}')
+            print(f'rk_ss = {ss.rk:.4f}')
+            print(f'r_ss = {ss.rk-par.delta-par.n:.4f}')
             print(f'w_ss = {ss.w:.4f}')
             print(f'beta = {par.beta:.4f}')
             print(f'A = {ss.A:.4f}')
@@ -84,12 +88,13 @@ class RamseyModel():
         K = path.K
         K_lag = path.K_lag = np.insert(K[:-1],0, par.K_initial)
 
-        path.Y, path.r, path.w = production(par, path.A, K_lag)
+        path.Y, path.rk, path.w = production(par, path.A, K_lag)
+        path.r=path.rk-par.delta-path.n
         r_plus = np.append(path.r[1:], ss.r)
 
         errors = np.nan*np.ones((2, par.transition_path))
         errors[0,:] = C**(-par.theta) - par.beta*(1+r_plus)*C_plus**(-par.theta)
-        errors[1,:] = K - ((1-par.delta)*K_lag + path.Y - C)
+        errors[1,:] = K - ((1-par.delta-path.n)*K_lag + path.Y - C)
         
         return errors.ravel()
         
@@ -167,10 +172,10 @@ def production(par, A, K_lag):
     Y = A*K_lag**par.alpha * 1**(1-par.alpha)
 
     # b. factor prices
-    r = A*par.alpha * K_lag**(par.alpha-1) * 1**(1-par.alpha)
+    rk = A*par.alpha * K_lag**(par.alpha-1) * 1**(1-par.alpha)
     w = A*(1-par.alpha) * K_lag**(par.alpha) * 1**(-par.alpha)
 
-    return Y,r,w            
+    return Y,rk,w            
 
 def broyden_solver(f, x0, jac, tol=1e-8, maxiter=100, do_print=True):
     """ numerical equation system solver using the broyden method 
