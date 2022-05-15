@@ -37,7 +37,7 @@ class RamseyModel():
         par = self.par
         path = self.path
 
-        allvariables = ['A','K','C','w','r','Y','K_lag']
+        allvariables = ['A','K','C','w','r','rk','Y','K_lag']
 
         for variablename in allvariables:
             setattr(path, variablename, np.nan*np.ones(par.transition_path))
@@ -53,11 +53,12 @@ class RamseyModel():
         ss.A = 1/Y
         
         # factor prices
-        ss.Y, ss.r, ss.w = production(par,ss.A, ss.K)
+        ss.Y, ss.rk, ss.w = production(par,ss.A, ss.K)
         assert np.isclose(ss.Y, 1.0)
         
+        ss.r = ss.rk-par.delta
         # implied discount factor
-        par.beta = 1/(1+ss.r)
+        par.beta = 1/(1+(ss.rk-par.delta))
 
         # consumption (goods market clear Y = C + I, I = delta*K)
         ss.C = ss.Y - par.delta*ss.K 
@@ -66,7 +67,8 @@ class RamseyModel():
 
             print(f'Y_ss = {ss.Y:.4f}')
             print(f'K_ss/Y_ss = {ss.K/ss.Y:.4f}')
-            print(f'r_ss = {ss.r:.4f}')
+            print(f'rk_ss = {ss.rk:.4f}')
+            print(f'r_ss = {ss.rk-par.delta:.4f}')
             print(f'w_ss = {ss.w:.4f}')
             print(f'beta = {par.beta:.4f}')
             print(f'A = {ss.A:.4f}')
@@ -84,7 +86,8 @@ class RamseyModel():
         K = path.K
         K_lag = path.K_lag = np.insert(K[:-1],0, par.K_initial)
 
-        path.Y, path.r, path.w = production(par, path.A, K_lag)
+        path.Y, path.rk, path.w = production(par, path.A, K_lag)
+        path.r=path.rk-par.delta
         r_plus = np.append(path.r[1:], ss.r)
 
         errors = np.nan*np.ones((2, par.transition_path))
@@ -167,10 +170,10 @@ def production(par, A, K_lag):
     Y = A*K_lag**par.alpha * 1**(1-par.alpha)
 
     # b. factor prices
-    r = A*par.alpha * K_lag**(par.alpha-1) * 1**(1-par.alpha)
+    rk = A*par.alpha * K_lag**(par.alpha-1) * 1**(1-par.alpha)
     w = A*(1-par.alpha) * K_lag**(par.alpha) * 1**(-par.alpha)
 
-    return Y,r,w            
+    return Y,rk,w            
 
 def broyden_solver(f, x0, jac, tol=1e-8, maxiter=100, do_print=True):
     """ numerical equation system solver using the broyden method 
