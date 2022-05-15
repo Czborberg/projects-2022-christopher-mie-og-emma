@@ -24,7 +24,7 @@ class RamseyModel():
         par = self.par
 
         par.alpha = 0.3 # capital share
-        par.n = 0.00 # capital share
+        par.n = 0.05 # capital share
         par.beta = np.nan # discount factor
         par.A=np.nan
         par.delta = 0.05 # depreciation rate
@@ -57,9 +57,9 @@ class RamseyModel():
         ss.Y, ss.rk, ss.w = production(par,ss.A, ss.K)
         assert np.isclose(ss.Y, 1.0)
         
-        ss.r = ss.rk-par.delta
+        ss.r = ss.rk-par.delta-par.n
         # implied discount factor
-        par.beta = 1/(1+(ss.rk-par.delta))
+        par.beta = 1/(1+(ss.rk-par.delta-par.n))
 
         # consumption (goods market clear Y = C + I, I = delta*K + delta*n)
         ss.C = ss.Y - par.delta*ss.K - par.n*ss.K
@@ -69,7 +69,7 @@ class RamseyModel():
             print(f'Y_ss = {ss.Y:.4f}')
             print(f'K_ss/Y_ss = {ss.K/ss.Y:.4f}')
             print(f'rk_ss = {ss.rk:.4f}')
-            print(f'r_ss = {ss.rk-par.delta:.4f}')
+            print(f'r_ss = {ss.rk-par.delta-par.n:.4f}')
             print(f'w_ss = {ss.w:.4f}')
             print(f'beta = {par.beta:.4f}')
             print(f'A = {ss.A:.4f}')
@@ -88,7 +88,7 @@ class RamseyModel():
         K_lag = path.K_lag = np.insert(K[:-1],0, par.K_initial)
 
         path.Y, path.rk, path.w = production(par, path.A, K_lag)
-        path.r=path.rk-par.delta
+        path.r=path.rk-par.delta-par.n
         r_plus = np.append(path.r[1:], ss.r)
 
         errors = np.nan*np.ones((2, par.transition_path))
